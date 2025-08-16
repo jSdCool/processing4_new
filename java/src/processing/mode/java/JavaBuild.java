@@ -733,6 +733,16 @@ public class JavaBuild {
       writer.println("APPL????");
       writer.flush();
       writer.close();
+
+      Settings sketchProperties = new Settings(new File(sketch.getFolder(), "sketch.properties"));
+      String iconPath = sketchProperties.get("icon");  // icon.macos in sketch.properties
+      File iconFile;
+      if(iconPath == null || iconPath.isEmpty()){
+          iconFile = mode.getContentFile("application/application.icns");
+      }else {
+          iconFile = new File(sketch.getFolder(), iconPath);
+      }
+
       var resources = System.getProperty("compose.application.resources.dir");
       if(resources == null) {
         // Use faster(?) native copy here (also to do sym links)
@@ -741,10 +751,10 @@ public class JavaBuild {
                              new File(contentsFolder, "PlugIns"));
         }
 
-        File resourcesFolder = new File(contentsFolder, "Resources");
-        Util.copyDir(new File(contentsOrig, "Resources/en.lproj"),
-                new File(resourcesFolder, "en.lproj"));
-        Util.copyFile(mode.getContentFile("application/application.icns"),
+      File resourcesFolder = new File(contentsFolder, "Resources");
+      Util.copyDir(new File(contentsOrig, "Resources/en.lproj"),
+                   new File(resourcesFolder, "en.lproj"));
+      Util.copyFile(iconFile,
                 new File(resourcesFolder, "application.icns"));
       }else{
         if(embedJava){
@@ -763,8 +773,8 @@ public class JavaBuild {
 
           Util.copyDir(new File(resources, "modes/java/application/en.lproj"),
                   new File(contentsFolder, "Resources/en.lproj"));
-          Util.copyFile(new File(resources, "modes/java/application/application.icns"),
-                  new File(contentsFolder, "Resources/application.icns"));
+          Util.copyFile(iconFile,
+                    new File(contentsFolder, "application.icns"));
 
 
         }
@@ -991,7 +1001,15 @@ public class JavaBuild {
       File exeFile = new File(destFolder, sketch.getName() + ".exe");
       config.addChild("outfile").setContent(exeFile.getAbsolutePath());
 
-      File iconFile = mode.getContentFile("application/application.ico");
+      // check sketch.properties to see if an icon was set
+      Settings sketchProperties = new Settings(new File(sketch.getFolder(), "sketch.properties"));
+      String iconPath = sketchProperties.get("icon");// icon.windows in sketch.properties
+      File iconFile;
+      if(iconPath == null || iconPath.isEmpty()){
+        iconFile = mode.getContentFile("application/application.ico");
+      }else {
+        iconFile = new File(sketch.getFolder(), iconPath);
+      }
       config.addChild("icon").setContent(iconFile.getAbsolutePath());
 
       XML clazzPath = config.addChild("classPath");
