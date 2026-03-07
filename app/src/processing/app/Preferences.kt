@@ -35,6 +35,9 @@ class ReactiveProperties : Properties() {
     operator fun set(key: String, value: String) {
         setProperty(key, value)
     }
+    fun remove() {
+        TODO("Not yet implemented")
+    }
 }
 
 /*
@@ -77,7 +80,7 @@ fun PreferencesProvider(content: @Composable () -> Unit) {
     val preferencesFileOverride: File? = System.getProperty("processing.app.preferences.file")?.let { File(it) }
     val preferencesDebounceOverride: Long? = System.getProperty("processing.app.preferences.debounce")?.toLongOrNull()
 
-    val settingsFolder = Settings.getFolder()
+    val settingsFolder = Base.getSettingsOverride() ?: Settings.getFolder()
     val preferencesFile = preferencesFileOverride ?: settingsFolder.resolve(PREFERENCES_FILE_NAME)
 
     if (!preferencesFile.exists()) {
